@@ -1,0 +1,46 @@
+@Library("shared-library") _
+pipeline{
+    
+    agent { label "j-agent" }
+    
+    stages{
+        
+        stage("Library"){
+            steps{
+                script{
+                    hello()
+                }
+            }
+        }
+        
+        stage("code"){
+            steps{
+                script{
+                        clone("https://github.com/IndraNaik/django-notes-app.git", "main")
+                }
+            }
+        }
+        stage("Build"){
+            steps{
+                script{
+                        docker_build("django-notes-app", "1", "indranaik")
+                }
+            }
+        }
+        stage("Push to DockerHub"){
+            steps{
+                script{
+                    docker_push("django-notes-app", "1", "indranaik")
+                }
+            }
+        }
+        stage("Deploy"){
+            steps{
+                echo "This is deploying the code"
+                // sh "docker run -d -p 8000:8000 django-notes-app:1"
+                 sh "sudo docker compose up -d"
+            }
+        }
+        
+    }
+}
